@@ -1,5 +1,5 @@
 char* shortestCompletingWord(char* licensePlate, char** words, int wordsSize) {
-    int i, j = 0, k, letras[27] = {0}, valido;
+    int i, j = 0, k, letras[27] = {0};
     char *palavra = NULL; 
     bool e;
 
@@ -11,7 +11,7 @@ char* shortestCompletingWord(char* licensePlate, char** words, int wordsSize) {
                 letras[*licensePlate - 'a']++;
             }
 
-             if ( *licensePlate >= 'A' && *licensePlate <= 'Z' ) {
+            if ( *licensePlate >= 'A' && *licensePlate <= 'Z' ) {
                 letras[*licensePlate - 'A']++;
             }
         }
