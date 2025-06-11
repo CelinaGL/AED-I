@@ -3,7 +3,7 @@
 #include <string.h>
 
 void menu( void *pBuffer );
-void add( void *pBuffer );
+void add( void **pBuffer );
 //void remove( void *pBuffer );
 void search( void *pBuffer );
 void list( void *pBuffer );
@@ -18,7 +18,7 @@ int main() {
         switch ( *((int *)pBuffer) )
         {
         case 1:
-            add( pBuffer );
+            add( &pBuffer );
             break;
         case 2:
             //remove( pBuffer );
@@ -30,12 +30,12 @@ int main() {
             list( pBuffer );
             break;
         case 5:
+            free(pBuffer);
             exit(0);
             break;
         }
     }
 
-    free(pBuffer);
     return 0;
 }
 
@@ -54,26 +54,31 @@ void menu( void *pBuffer ) {
     } while( *( (int *)pBuffer ) <= 0 || *( (int *)pBuffer ) > 5 );
 }
 
-void add( void *pBuffer) {
+void add( void **pBuffer ) {
+    int *quantidade = (int *)(*pBuffer) + 1;
+    (*quantidade)++;
 
-    (*( (int *)pBuffer + 1 ))++;
+    void *novopBuffer = realloc( *pBuffer, 8 + (82 * ( *quantidade ) ) );
 
-    pBuffer = realloc( pBuffer, ( 8 + (82 *( *( (int *)pBuffer + 1 ) ) ) ) );
+    *pBuffer = novopBuffer;
 
-    printf( "Digite o nome: " );
-    fgets ( (char *)pBuffer + ( 8 + (82 *( *( (int *)pBuffer + 1 ) - 1 ) ) ), 32, stdin ); //Nome
-    printf( "Digite o email: " );
-    fgets( (char *)pBuffer + ( 40 + (82 *( *( (int *)pBuffer + 1 ) - 1 ) ) ), 46, stdin ); //Email
-    printf( "Digite a idade: " );
-    scanf( "%d", (int *)((char *)pBuffer + ( 86 + (82 *( *( (int *)pBuffer + 1 ) - 1 ) ) ) ) ); //Idade
-    getchar();
+    void *nome = ( char * )(*pBuffer) + 8 + (82 * ( ( *quantidade ) - 1 ) );
+    void *email = nome + 32;
+    void *idade = ( int * )(email + 46);
+
+    printf("Nome: ");
+    fgets( nome, 32, stdin );
+    printf("Email: ");
+    fgets( email, 46, stdin );
+    printf("Idade: ");
+    scanf("%d", idade);
 
 }
 
 void list( void *pBuffer ) {
     
     for ( *((int *)pBuffer) = 0;  *((int *)pBuffer) < *((int *)pBuffer + 1); ( *( (int *)pBuffer) )++ ) {
-        printf("Posicao: %d", *(int*)pBuffer + 1);
+        printf("\nPosicao: %d", *(int*)pBuffer + 1);
         printf("\nNome: %s", (char *)pBuffer + ( 8 + (82 *( *( (int *)pBuffer) ) ) ) );
         printf("Email: %s", (char *)pBuffer + ( 40 + (82 *( *( (int *)pBuffer) ) ) ) );
         printf("Idade: %d\n", *((int *)((char *)pBuffer + ( 86 + (82 *( *( (int *)pBuffer ) ) ) ) ) ) );
@@ -83,22 +88,21 @@ void list( void *pBuffer ) {
 
 void search( void *pBuffer ) {
 
-    void *email = (char *)pBuffer + ( 90 + (82 *( *( (int *)pBuffer + 1 ) ) ) );
+    char *nome = (char *)pBuffer + 8 + (82 * (*(int *)((int *)pBuffer + 1)));
+    int *contador = (int *)pBuffer;
+    int *quantidade = (int *)pBuffer + 1;
 
-    printf("Digite o email que quer procurar: ");
-    //Email para comparar
-    fgets( email, 46, stdin ); 
+    printf("Digite o nome da pessoa que quer procurar: ");
+    //Nome para comparar
+    fgets( nome, 32, stdin ); 
 
-    for ( *((int *)pBuffer) = 0;  *((int *)pBuffer) < *((int *)pBuffer + 1); ( *( (int *)pBuffer) )++ ) {
-        if(strcmp( (char *)email, (char *)pBuffer + ( 8 + (82 *( *( (int *)pBuffer) ) ) ) ) == 0) {
-            //numeros e caracteres especiais não estao comparando
-            printf("\nEste email esta na posicao de numero %d da agenda\n", *((int *)pBuffer + 1) );
-
-            free(email);
+    for ( *contador = 0;  *contador < *quantidade; (*contador)++) {
+        if(strcmp( (char *)nome, (char *)pBuffer + ( 8 + (82 *( *contador ) ) ) ) == 0) {
+            printf("\nEsta pessoa esta na posicao de numero %d da agenda\n", *((int *)pBuffer + 1) );
             return;
         } 
     }
 
-    printf("\nEste email nao esta na agenda\n");
-    free(email);
+    printf("\nEsta pessoa nao esta na agenda\n");
 }
+
