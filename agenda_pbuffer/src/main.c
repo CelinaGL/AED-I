@@ -64,7 +64,7 @@ void add( void **pBuffer ) {
     int *quantidade = (int *)(*pBuffer) + 1;
     (*quantidade)++;
 
-    void *novopBuffer = realloc( *pBuffer, cabeca + ( (*quantidade) * pessoa ) );//Aqui é o problema
+    void *novopBuffer = realloc( *pBuffer, cabeca + ( (*quantidade) * pessoa ) );
 
     *pBuffer = novopBuffer;
     quantidade = (int *)(*pBuffer) + 1;
