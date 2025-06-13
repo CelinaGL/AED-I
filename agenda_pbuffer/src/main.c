@@ -2,14 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define cabeca (sizeof(int) * 2 + sizeof(char) * 32)
+#define nomeP (sizeof(char) * 32)
+#define emailP (sizeof(char) * 46)
+#define idadeP sizeof(int)
+#define pessoa (nomeP + emailP + idadeP)
+
 void menu( void *pBuffer );
 void add( void **pBuffer );
-//void remove( void *pBuffer );
+void remover( void **pBuffer );
 void search( void *pBuffer );
 void list( void *pBuffer );
 
 int main() {
-    void *pBuffer = malloc(sizeof(int) * 2);
+    void *pBuffer = malloc(sizeof(int) * 3 + sizeof(char) * 110 );
     *((int *)pBuffer) = 0; //Menu
     *((int *)pBuffer + 1) = 0; //Quantidade de pessoas
     
@@ -21,7 +27,7 @@ int main() {
             add( &pBuffer );
             break;
         case 2:
-            //remove( pBuffer );
+            remover( &pBuffer );
             break;
         case 3:
             search( pBuffer );
@@ -58,47 +64,53 @@ void add( void **pBuffer ) {
     int *quantidade = (int *)(*pBuffer) + 1;
     (*quantidade)++;
 
-    void *novopBuffer = realloc( *pBuffer, 8 + (82 * ( *quantidade ) ) );
+    void *novopBuffer = realloc( *pBuffer, cabeca + ( (*quantidade) * pessoa ) );//Aqui é o problema
 
     *pBuffer = novopBuffer;
+    quantidade = (int *)(*pBuffer) + 1;
 
-    void *nome = ( char * )(*pBuffer) + 8 + (82 * ( ( *quantidade ) - 1 ) );
-    void *email = nome + 32;
-    void *idade = ( int * )(email + 46);
+    void *nome = ( char * )(*pBuffer) + ( cabeca + ( ( (*quantidade) - 1) * pessoa ) );
+    void *email = nome + nomeP;
+    void *idade = ( int * )(email + emailP);
 
     printf("Nome: ");
-    fgets( nome, 32, stdin );
+    //fgets( nome, 32, stdin );
+    scanf("%[^\n]s", nome);
+    getchar();
     printf("Email: ");
-    fgets( email, 46, stdin );
+
+    scanf("%[^\n]s", email);
+    getchar();
     printf("Idade: ");
     scanf("%d", idade);
 
 }
 
 void list( void *pBuffer ) {
-    
     for ( *((int *)pBuffer) = 0;  *((int *)pBuffer) < *((int *)pBuffer + 1); ( *( (int *)pBuffer) )++ ) {
         printf("\nPosicao: %d", *(int*)pBuffer + 1);
-        printf("\nNome: %s", (char *)pBuffer + ( 8 + (82 *( *( (int *)pBuffer) ) ) ) );
-        printf("Email: %s", (char *)pBuffer + ( 40 + (82 *( *( (int *)pBuffer) ) ) ) );
-        printf("Idade: %d\n", *((int *)((char *)pBuffer + ( 86 + (82 *( *( (int *)pBuffer ) ) ) ) ) ) );
+        printf("\nNome: %s\n", (char *)pBuffer + ( cabeca + (pessoa *( *( (int *)pBuffer) ) ) ) );
+        printf("Email: %s\n", (char *)pBuffer + ( cabeca + nomeP + (pessoa *( *( (int *)pBuffer) ) ) ) );
+        printf("Idade: %d\n", *((int *)((char *)pBuffer + ( cabeca + nomeP + emailP + (pessoa *( *( (int *)pBuffer ) ) ) ) ) ) );
     }
 
 }
 
 void search( void *pBuffer ) {
-
-    char *nome = (char *)pBuffer + 8 + (82 * (*(int *)((int *)pBuffer + 1)));
     int *contador = (int *)pBuffer;
     int *quantidade = (int *)pBuffer + 1;
+    char *nome = (char *)pBuffer + 8 + (pessoa * (*quantidade) );
 
     printf("Digite o nome da pessoa que quer procurar: ");
     //Nome para comparar
-    fgets( nome, 32, stdin ); 
+    scanf("%[^\n]s", nome);
 
     for ( *contador = 0;  *contador < *quantidade; (*contador)++) {
-        if(strcmp( (char *)nome, (char *)pBuffer + ( 8 + (82 *( *contador ) ) ) ) == 0) {
-            printf("\nEsta pessoa esta na posicao de numero %d da agenda\n", *((int *)pBuffer + 1) );
+        if(strcmp( nome, (char *)pBuffer + ( cabeca + (pessoa *( *contador ) ) ) ) == 0) {
+            printf("\nEsta pessoa esta na posicao de numero %d da agenda\n", *contador + 1 );
+            printf("Email: %s\n", (char *)pBuffer + ( cabeca + nomeP + (pessoa *( *contador ) ) ) );
+            printf("Idade: %d\n", *((int *)((char *)pBuffer + ( cabeca + nomeP + emailP + (pessoa *( *contador ) ) ) ) ) );
+            
             return;
         } 
     }
@@ -106,3 +118,31 @@ void search( void *pBuffer ) {
     printf("\nEsta pessoa nao esta na agenda\n");
 }
 
+void remover( void **pBuffer ) {
+    int *contador = (int *)(*pBuffer);
+    int *quantidade = (int *)(*pBuffer) + 1;
+    char *nome = (char *)(*pBuffer) + 8 + (pessoa * (*quantidade));
+
+    printf("Digite o nome da pessoa que quer remover: ");
+    //Nome para comparar
+    scanf("%[^\n]s", nome);
+
+    for ( *contador = 0;  *contador < *quantidade; (*contador)++) {
+        if(strcmp( nome, (char *)(*pBuffer) + ( cabeca + (pessoa *( *contador ) ) ) ) == 0) {
+            
+            if (*contador < (*quantidade - 1)) {
+                void *remover = (char *)(*pBuffer) + cabeca + (pessoa * (*contador));
+                void *manter = (char *)remover + pessoa;
+
+                memmove(remover, manter, pessoa * ((*quantidade) - (*contador) - 1));
+            }
+            (*quantidade)--;
+            void *novopBuffer = realloc( *pBuffer, cabeca + (pessoa * ( *quantidade ) ) );
+            *pBuffer = novopBuffer;
+            printf("\nEsta pessoa foi removida\n");
+            return;
+        } 
+    }
+
+     printf("\nEsta pessoa nao esta na agenda\n");
+}
