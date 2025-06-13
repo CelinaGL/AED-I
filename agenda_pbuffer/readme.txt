@@ -25,6 +25,7 @@ DrMemory ou Valgrind.
 
 Testes: 
 Adicionar pessoas
+Listar pessoas
 Procurar uma pessoa na lista
 Remover uma pessoa do meio da lista
 Remover uma pessoa do começo da lista
