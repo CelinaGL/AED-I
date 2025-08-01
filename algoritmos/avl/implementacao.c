@@ -34,7 +34,7 @@ int main(){
         r = Insere( &root, x );
     }
 
-    printf("%d", root->val );
+    printf("%d ", root->val );
     printf("%d ", root->left->val );
     printf("%d ", root->right->val );
 
@@ -60,7 +60,7 @@ int Altura( Nodo *root ) {
 }
 
 int FB( Nodo *root ) {
-    if ( root = NULL ){
+    if ( root == NULL ){
         return 0;
     }
     return Altura( root->left ) - Altura( root->right );
