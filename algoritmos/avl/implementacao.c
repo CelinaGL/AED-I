@@ -18,6 +18,7 @@ void RSD( Nodo **root );
 int BalancaEsq( Nodo **root );
 int BalancaDir( Nodo **root );
 int Insere( Nodo **root, int x );
+void listarPreOrdem( Nodo* raiz);
 
 
 int main(){
@@ -34,11 +35,17 @@ int main(){
         r = Insere( &root, x );
     }
 
-    printf("%d ", root->val );
-    printf("%d ", root->left->val );
-    printf("%d ", root->right->val );
+    listarPreOrdem(root);
 
     return 0;
+}
+
+void listarPreOrdem( Nodo* raiz) {
+    if (raiz != NULL) {
+        printf("%d ", raiz->val);     // Visita a raiz
+        listarPreOrdem(raiz->left);  // Visita a subárvore esquerda
+        listarPreOrdem(raiz->right);   // Visita a subárvore direita
+    }
 }
 
 int Altura( Nodo *root ) {
